@@ -1,0 +1,21 @@
+add one
+add two
+add three
+add four
+add five six seven
+display
+delete three
+delete 3
+display
+delete 10
+display
+clear
+display
+add the letter a
+delete 1
+delete 1
+add benjamin
+add hello frills
+add sia
+display
+exit

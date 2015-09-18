@@ -1,0 +1,38 @@
+Welcome to TextBuddy. mytestfile.txt is ready for use
+command: added to mytestfile.txt: 'one'
+command: added to mytestfile.txt: 'two'
+command: added to mytestfile.txt: 'three'
+command: added to mytestfile.txt: 'four'
+command: added to mytestfile.txt: 'five six seven'
+command: 1. one
+2. two
+3. three
+4. four
+5. five six seven
+
+command: invalid command format: delete three
+command: deleted from mytestfile.txt: 'three'
+command: 1. one
+2. two
+3. four
+4. five six seven
+
+command: invalid command format: delete 10
+command: 1. one
+2. two
+3. four
+4. five six seven
+
+command: all content deleted from mytestfile.txt
+command: mytestfile.txt is empty
+command: added to mytestfile.txt: 'the letter a'
+command: deleted from mytestfile.txt: 'the letter a'
+command: mytestfile.txt is empty
+command: added to mytestfile.txt: 'benjamin'
+command: added to mytestfile.txt: 'hello frills'
+command: added to mytestfile.txt: 'sia'
+command: 1. benjamin
+2. hello frills
+3. sia
+
+command: 

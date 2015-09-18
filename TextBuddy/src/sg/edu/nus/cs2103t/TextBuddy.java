@@ -4,9 +4,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
-import org.omg.PortableInterceptor.USER_EXCEPTION;
 
 public class TextBuddy {
 	//messages shown to users
@@ -24,26 +25,25 @@ public class TextBuddy {
 	}
 	
 	//data structure for storing texts
-	public static class ListNode{
-		public ListNode nextText;
-		public String content;
-	}
-	
-	private static ListNode headText = new ListNode();
+	public static ArrayList<String> textStorage = new ArrayList<>();
 	
 	private static Scanner scanner = new Scanner(System.in);
 	
 	private static String textFileName;
 	
+	private static Integer FILE_NAME_POSITION = 0;
+	private static Integer START_INDEX = 0;
+	
+	
+	////////////////////////////////////////////////
 	public static void main(String[] args){
-		textFileName = args[0];
+		textFileName = args[FILE_NAME_POSITION];
 				
 		showUser(String.format(MESSAGE_BEGIN, textFileName));
 		while (true) {
 			System.out.print("command: ");
-			String command = scanner.nextLine();
-			String userCommand = command;
-			String feedback = runCommand(userCommand);
+			String userInput = scanner.nextLine();
+			String feedback = runCommand(userInput);
 			showUser(feedback);
 		}
 	}
@@ -53,8 +53,9 @@ public class TextBuddy {
 	}
 	
 	public static String runCommand(String userInput){
-		if (userInput.trim().equals(""))
+		if (userInput.trim().isEmpty()){
 			return String.format(MESSAGE_INVALID, userInput);
+		}
 		
 		COMMAND_TYPE command = getCommand(userInput);
 		
@@ -115,31 +116,10 @@ public class TextBuddy {
 	 */
 	private static String addText(String userInput){
 		String textToAdd = removeFirstWord(userInput);
-		if (isEmpty(headText)){
-			if (headText == null){
-				headText = new ListNode();
-			}
-			headText.content = textToAdd;
-		} else {
-			ListNode newText = new ListNode();
-			newText.content = textToAdd;
-			ListNode lastText = findLastText();
-			lastText.nextText = newText;
-		}
-		
+		textStorage.add(textToAdd);
 		return String.format(MESSAGE_ADD, textFileName, textToAdd);
 	}
 	
-	/**
-	 * @return the last text node in the program
-	 */
-	private static ListNode findLastText(){
-		ListNode curr = headText;
-		while (!isEmpty(curr.nextText)){
-			curr = curr.nextText;
-		}
-		return curr;
-	}
 	
 	/**
 	 * This operation is used to delete texts corresponding to the line number indicated
@@ -153,59 +133,16 @@ public class TextBuddy {
 		int deletePosition = positionToRemove(userInput);
 		String deletedText;
 		
-		if (deletePosition < 0){
+		if (deletePosition < START_INDEX || deletePosition > textStorage.size()){
 			return String.format(MESSAGE_INVALID, userInput);
-		}
-		
-		if (isEmpty(headText)){
+		} else if (textStorage.isEmpty()){
 			return String.format(MESSAGE_EMPTY, textFileName);
-		} else if (deletePosition == 0){
-			deletedText = getText(headText);
-			headText = headText.nextText;
+		} else {
+			deletedText = textStorage.remove(deletePosition);
 			return String.format(MESSAGE_DELETE, textFileName, deletedText);
-		}
-		
-		ListNode textBeforeDeletePosition = textBeforeDeletedText(headText, deletePosition);
-		
-		if (isEmpty(textBeforeDeletePosition) || isEmpty(textBeforeDeletePosition.nextText)){
-			return String.format(MESSAGE_INVALID, userInput);
-		}
-		
-		ListNode textNodeToDelete = textBeforeDeletePosition.nextText;
-		
-		deletedText = getText(textNodeToDelete);
-		textBeforeDeletePosition.nextText = textNodeToDelete.nextText;
-		return String.format(MESSAGE_DELETE, textFileName, deletedText);
+		}	
 	}
 	
-	/**
-	 * @param textNode
-	 * @param count
-	 * @return the text node prior to the text node being deleted
-	 */
-	private static ListNode textBeforeDeletedText(ListNode textNode, int count) {
-		while ((count > 1) && (textNode != null)){
-			textNode = textNode.nextText;
-			count--;
-		}
-		return textNode;
-	}
-	
-	/**
-	 * @param textNode
-	 * @return text contained within a text node
-	 */
-	private static String getText(ListNode textNode) {
-		return textNode.content;
-	}
-	
-	/**
-	 * @param textNode
-	 * @return a boolean value indicating whether a text node is empty
-	 */
-	private static boolean isEmpty(ListNode textNode) {
-		return (textNode == null) || (textNode.content == null);
-	}
 	
 	/**
 	 * @param userInput
@@ -225,8 +162,7 @@ public class TextBuddy {
 	 * @return message indicating successful clearance
 	 */
 	private static String clearText(){
-		headText.content = null;
-		headText.nextText = null;
+		textStorage.clear();
 		return String.format(MESSAGE_CLEAR, textFileName);
 	}
 	
@@ -235,25 +171,25 @@ public class TextBuddy {
 	 * @return text contained within the text file
 	 */
 	private static String displayText(){
-		ListNode textNode = headText;
 		String allText = "", textLine;
 		int lineCount = 1;
+		Iterator<String> textIter = textStorage.iterator();
+		
+		if (textStorage.isEmpty()){
+			return String.format(MESSAGE_EMPTY, textFileName);
+		}
 
-		while (!isEmpty(textNode)){
-			textLine = formatTextLine(lineCount, textNode);
+		while (textIter.hasNext()){
+			textLine = formatTextLine(lineCount, textIter.next());
 			allText += textLine;
-			textNode = textNode.nextText;
 			lineCount++;
 		}
 		
-		if (allText == ""){
-			return String.format(MESSAGE_EMPTY, textFileName);
-		}
 		return allText;
 	}
 	
-	private static String formatTextLine(int lineCount, ListNode textNode) {
-		return Integer.toString(lineCount) + ". " + getText(textNode) + "\r\n";
+	private static String formatTextLine(int lineCount, String text) {
+		return Integer.toString(lineCount) + ". " + text + "\r\n";
 	}
 	
 	private static void writeIntoFile(String text){
@@ -280,7 +216,7 @@ public class TextBuddy {
 	}
 	
 	private static String getFirstWord(String line){
-		return line.trim().split("\\s+")[0];
+		return line.trim().split("\\s+")[START_INDEX];
 	}
 	
 }
