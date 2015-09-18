@@ -5,6 +5,8 @@ import java.io.FileWriter;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -15,13 +17,13 @@ public class TextBuddy {
 	private static final String MESSAGE_ADD = "added to %1$s: '%2$s'";
 	private static final String MESSAGE_DELETE = "deleted from %1$s: '%2$s'";
 	private static final String MESSAGE_CLEAR = "all content deleted from %1$s";
+	private static final String MESSAGE_SORT = "sorted contents of %1$s in alphabetical order";
 	private static final String MESSAGE_EMPTY = "%1$s is empty";
 	private static final String MESSAGE_INVALID = "invalid command format: %1$s";
-		
 
 	//possible command types
 	enum COMMAND_TYPE{
-		ADD_TEXT, DELETE_TEXT, CLEAR_TEXT, DISPLAY_TEXT, INVALID, EXIT;
+		ADD_TEXT, DELETE_TEXT, CLEAR_TEXT, DISPLAY_TEXT, SORT_TEXT, INVALID, EXIT;
 	}
 	
 	//data structure for storing texts
@@ -68,6 +70,8 @@ public class TextBuddy {
 			return clearText();
 		case DISPLAY_TEXT:
 			return displayText();
+		case SORT_TEXT:
+			return sortText();
 		case INVALID:
 			return String.format(MESSAGE_INVALID, userInput);
 		case EXIT:
@@ -100,6 +104,8 @@ public class TextBuddy {
 			return COMMAND_TYPE.CLEAR_TEXT;
 		} else if (command.equalsIgnoreCase("display")){
 			return COMMAND_TYPE.DISPLAY_TEXT;
+		} else if (command.equals("sort")){
+			return COMMAND_TYPE.SORT_TEXT;
 		} else if (command.equalsIgnoreCase("exit")){
 			return COMMAND_TYPE.EXIT;
 		} else{
@@ -190,6 +196,11 @@ public class TextBuddy {
 	
 	private static String formatTextLine(int lineCount, String text) {
 		return Integer.toString(lineCount) + ". " + text + "\r\n";
+	}
+	
+	private static String sortText() {
+		Collections.sort(textStorage);
+		return String.format(MESSAGE_SORT, textFileName);
 	}
 	
 	private static void writeIntoFile(String text){
