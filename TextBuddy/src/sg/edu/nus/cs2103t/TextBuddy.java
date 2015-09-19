@@ -9,9 +9,14 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Scanner;
 
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
-
+/**
+ * TextBuddy is a Command Line Interface program which allows users to write into
+ * their specified text file and edit it accordingly. Users can add, delete, and sort
+ * lines. Users can also clear the text file or search for a word in the file.
+ * @author JingYin
+ *
+ */
 public class TextBuddy {
 	//messages shown to users
 	private static final String MESSAGE_BEGIN = "Welcome to TextBuddy. %1$s is ready for use";
@@ -20,8 +25,10 @@ public class TextBuddy {
 	private static final String MESSAGE_CLEAR = "all content deleted from %1$s";
 	private static final String MESSAGE_SORT = "sorted contents of %1$s in alphabetical order";
 	private static final String MESSAGE_SEARCH_FAIL = "%1$s can't be found in %2$s";
+	private static final String MESSAGE_SEARCH_EMPTY = "Nothing to be sorted";
 	private static final String MESSAGE_EMPTY = "%1$s is empty";
 	private static final String MESSAGE_INVALID = "invalid command format: %1$s";
+	private static final String MESSAGE_ERROR_WRITING_INTO_FILE = "ERROR: Unable to write into file";
 
 	//possible command types
 	enum COMMAND_TYPE{
@@ -39,6 +46,7 @@ public class TextBuddy {
 	private static Integer ARRAY_START_INDEX = 0;
 	private static Integer START_LINE_COUNT = 1;
 	private static Integer ERROR_INDICATOR = -1;
+	private static Integer ADJUST_TO_ARRAY_INDEX = -1;
 	
 	
 	/**
@@ -56,6 +64,7 @@ public class TextBuddy {
 			String userInput = textBuddy.getUserInput();
 			String feedback = textBuddy.runCommand(userInput);
 			showUser(feedback);
+			textBuddy.writeIntoFile();
 		}
 	}
 	
@@ -101,7 +110,7 @@ public class TextBuddy {
 		case INVALID:
 			return String.format(MESSAGE_INVALID, userInput);
 		case EXIT:
-			writeIntoFile(displayText());
+			writeIntoFile();
 			System.exit(0);
 		default:
 			throw new Error("Unrecognized command type");
@@ -185,7 +194,7 @@ public class TextBuddy {
 	private Integer positionToRemove(String userInput){
 		String number = removeFirstWord(userInput);
 		try{
-			return Integer.parseInt(number) - 1;
+			return Integer.parseInt(number) + ADJUST_TO_ARRAY_INDEX;
 		} catch (NumberFormatException e){
 			return ERROR_INDICATOR;
 		}
@@ -224,19 +233,21 @@ public class TextBuddy {
 	
 	
 	
-	//formats text line in the form of e.g. 1. content of first input
+	//formats text line in the form of "#. input content"
 	private String formatTextLine(int lineCount, String text) {
-		return Integer.toString(lineCount) + ". " + text + "\r\n";
+		String lineNumber = Integer.toString(lineCount);
+		return lineNumber + ". " + text + "\r\n";
 	}
 	
 	
 	/**
 	 * sorts the text in alphabetical order
 	 * @return message to indicate text file has been sorted
+	 * 		   or that file is empty and has nothing to sort
 	 */
 	private String sortText() {
 		if (textStorage.isEmpty()){
-			return "Nothing to be sorted";
+			return MESSAGE_SEARCH_EMPTY;
 		}
 		
 		Collections.sort(textStorage);
@@ -273,7 +284,8 @@ public class TextBuddy {
 	
 	
 	//writes contents of textStorage into text file
-	private void writeIntoFile(String text){
+	//this method performs I/O operations and may result in IOExceptions
+	private void writeIntoFile(){
 		try{
 			File file = new File(findPathName());
 			if (!file.exists()){
@@ -281,10 +293,11 @@ public class TextBuddy {
 			}
 			FileWriter fw = new FileWriter(file.getAbsoluteFile());
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(text);
+			String fileContents = displayText();
+			bw.write(fileContents);
 			bw.close();
 		} catch (IOException e){
-			System.out.println("ERROR: Unable to write into file");
+			System.out.println(MESSAGE_ERROR_WRITING_INTO_FILE);
 		}
 	}
 	
