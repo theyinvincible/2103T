@@ -35,8 +35,22 @@ public class TextBuddyTest {
 		
 		String actual = textBuddy.runCommand("display");
 		String expected = "1. dinky\r\n2. ingress\r\n3. ingress\r\n4. ingress\r\n5. one\r\n";
-		System.out.println(actual);
+
 		assertEquals(expected, actual);
 	}
 
+	@Test
+	public void testSearchOneWord(){
+		textBuddy.runCommand("clear");
+		
+		textBuddy.runCommand("add one");
+		textBuddy.runCommand("add ingress");
+		textBuddy.runCommand("add dinky");
+		
+		String actual = textBuddy.search("ingress");
+		String expected = "ingress";
+		
+		assertEquals(expected, actual);
+		
+	}
 }
