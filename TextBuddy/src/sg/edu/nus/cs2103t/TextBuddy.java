@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Scanner;
 
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
+
 
 public class TextBuddy {
 	//messages shown to users
@@ -17,12 +19,13 @@ public class TextBuddy {
 	private static final String MESSAGE_DELETE = "deleted from %1$s: '%2$s'";
 	private static final String MESSAGE_CLEAR = "all content deleted from %1$s";
 	private static final String MESSAGE_SORT = "sorted contents of %1$s in alphabetical order";
+	private static final String MESSAGE_SEARCH_FAIL = "%1$s can't be found in %2$s";
 	private static final String MESSAGE_EMPTY = "%1$s is empty";
 	private static final String MESSAGE_INVALID = "invalid command format: %1$s";
 
 	//possible command types
 	enum COMMAND_TYPE{
-		ADD_TEXT, DELETE_TEXT, CLEAR_TEXT, DISPLAY_TEXT, SORT_TEXT, INVALID, EXIT;
+		ADD_TEXT, DELETE_TEXT, CLEAR_TEXT, DISPLAY_TEXT, SORT_TEXT, INVALID, SEARCH_TEXT, EXIT;
 	}
 	
 	//data structure for storing texts
@@ -33,7 +36,7 @@ public class TextBuddy {
 	private static String textFileName;
 	
 	private static Integer FILE_NAME_POSITION = 0;
-	private static Integer START_INDEX = 0;
+	private static Integer ARRAY_START_INDEX = 0;
 	private static Integer START_LINE_COUNT = 1;
 	private static Integer ERROR_INDICATOR = -1;
 	
@@ -78,6 +81,8 @@ public class TextBuddy {
 			return displayText();
 		case SORT_TEXT:
 			return sortText();
+		case SEARCH_TEXT:
+			return searchText(userInput);
 		case INVALID:
 			return String.format(MESSAGE_INVALID, userInput);
 		case EXIT:
@@ -112,6 +117,8 @@ public class TextBuddy {
 			return COMMAND_TYPE.DISPLAY_TEXT;
 		} else if (command.equals("sort")){
 			return COMMAND_TYPE.SORT_TEXT;
+		} else if (command.equals("search")) {
+			return COMMAND_TYPE.SEARCH_TEXT;
 		} else if (command.equalsIgnoreCase("exit")){
 			return COMMAND_TYPE.EXIT;
 		} else{
@@ -145,7 +152,7 @@ public class TextBuddy {
 		int deletePosition = positionToRemove(userInput);
 		String deletedText;
 				
-		if (deletePosition < START_INDEX || deletePosition >= textStorage.size()){
+		if (deletePosition < ARRAY_START_INDEX || deletePosition >= textStorage.size()){
 			return String.format(MESSAGE_INVALID, userInput);
 		} else if (textStorage.isEmpty()){
 			return String.format(MESSAGE_EMPTY, textFileName);
@@ -200,14 +207,49 @@ public class TextBuddy {
 		return allText;
 	}
 	
+	
+	
+	//formats text line in the form of e.g. 1. content of first input
 	private String formatTextLine(int lineCount, String text) {
 		return Integer.toString(lineCount) + ". " + text + "\r\n";
 	}
 	
+	
+	/**
+	 * sorts the text in alphabetical order
+	 * @return message to indicate text file has been sorted
+	 */
 	private String sortText() {
 		Collections.sort(textStorage);
 		return String.format(MESSAGE_SORT, textFileName);
 	}
+	
+	
+	
+	private String searchText(String userInput){
+		String searchedWord = removeFirstWord(userInput);
+		String textContainingWord = "";
+		String currentLine;
+		int index = START_LINE_COUNT;
+		
+		Iterator<String> textIter = textStorage.iterator();
+		
+		while (textIter.hasNext()){
+			currentLine = textIter.next();
+			if (currentLine.contains(searchedWord)){
+				textContainingWord += formatTextLine(index, currentLine);
+			}
+			index++;
+		}
+		
+		if (textContainingWord.equals("")){
+			return String.format(MESSAGE_SEARCH_FAIL, searchedWord, textFileName);
+		}
+		
+		return textContainingWord;
+	}
+	
+	
 	
 	private void writeIntoFile(String text){
 		try{
@@ -224,16 +266,21 @@ public class TextBuddy {
 		}
 	}
 	
+	
+	
+	//returns path of text file
 	private String findPathName() {
 		return System.getProperty("user.dir")+"/"+textFileName;
 	}
 	
+	//removes the first word of String input
 	private String removeFirstWord(String line){
 		return line.replace(getFirstWord(line), "").trim();
 	}
 	
+	//returns first word of String input
 	private String getFirstWord(String line){
-		return line.trim().split("\\s+")[START_INDEX];
+		return line.trim().split("\\s+")[ARRAY_START_INDEX];
 	}
 	
 }

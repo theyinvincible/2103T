@@ -47,10 +47,9 @@ public class TextBuddyTest {
 		textBuddy.runCommand("add ingress");
 		textBuddy.runCommand("add dinky");
 		
-		String actual = textBuddy.search("ingress");
-		String expected = "ingress";
+		String actual = textBuddy.runCommand("search ingress");
+		String expected = "2. ingress\r\n";
 		
 		assertEquals(expected, actual);
-		
 	}
 }
