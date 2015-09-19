@@ -69,4 +69,16 @@ public class TextBuddyTest {
 		
 		assertEquals(expected, actual);
 	}
+	
+	@Test
+	public void testSearchEmptyFile(){
+		textBuddy.runCommand("clear");
+		
+		String actual = textBuddy.runCommand("search word");
+		String expected = "word can't be found in testfile.txt";
+		
+		assertEquals(expected, actual);
+	}
+	
+	
 }
