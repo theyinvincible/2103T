@@ -80,5 +80,17 @@ public class TextBuddyTest {
 		assertEquals(expected, actual);
 	}
 	
+	@Test
+	public void testSearchUnfoundWord(){
+		textBuddy.runCommand("clear");
+		
+		textBuddy.runCommand("add tew chee");
+		textBuddy.runCommand("add chwee kueh");
+		
+		String actual = textBuddy.runCommand("search fries");
+		String expected = "fries can't be found in testfile.txt";
+		
+		assertEquals(expected, actual);
+	}
 	
 }
