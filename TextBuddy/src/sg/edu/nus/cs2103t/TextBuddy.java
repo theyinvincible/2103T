@@ -41,28 +41,43 @@ public class TextBuddy {
 	private static Integer ERROR_INDICATOR = -1;
 	
 	
-	////////////////////////////////////////////////
+	/**
+	 * creates TextBuddy object and waits for user inputs until
+	 * terminated
+	 * @param args
+	 */
 	public static void main(String[] args){
 		String fileName = args[FILE_NAME_POSITION];
 		TextBuddy textBuddy = new TextBuddy(fileName);
 				
 		showUser(String.format(MESSAGE_BEGIN, textFileName));
+		
 		while (true) {
-			System.out.print("command: ");
-			String userInput = scanner.nextLine();
+			String userInput = textBuddy.getUserInput();
 			String feedback = textBuddy.runCommand(userInput);
 			showUser(feedback);
 		}
 	}
 	
+	
+	//asks user for input and returns the user input
+	public String getUserInput(){
+		System.out.print("command: ");
+		return scanner.nextLine();
+	}
+	
+	
+	//constructor: stores name of text file
 	public TextBuddy(String fileName){
 		textFileName = fileName;
 	}
 	
+	//displays to the user text that is input into this method
 	private static void showUser(String text){
 		System.out.println(text);
 	}
 	
+	//executes the command given by the user
 	public String runCommand(String userInput){
 		if (userInput.trim().isEmpty()){
 			return String.format(MESSAGE_INVALID, userInput);
@@ -225,7 +240,10 @@ public class TextBuddy {
 	}
 	
 	
-	
+	/**
+	 * searches text file for word in user input
+	 * @return returns lines which contain the word being searched for
+	 */
 	private String searchText(String userInput){
 		String searchedWord = removeFirstWord(userInput);
 		String textContainingWord = "";
@@ -250,7 +268,7 @@ public class TextBuddy {
 	}
 	
 	
-	
+	//writes contents of textStorage into text file
 	private void writeIntoFile(String text){
 		try{
 			File file = new File(findPathName());

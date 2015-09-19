@@ -52,4 +52,21 @@ public class TextBuddyTest {
 		
 		assertEquals(expected, actual);
 	}
+	
+	@Test
+	public void testSearchMultipleLinesContainingWord(){
+		textBuddy.runCommand("clear");
+		
+		textBuddy.runCommand("add i have five toes");
+		textBuddy.runCommand("add constantly toeing the line");
+		textBuddy.runCommand("add that's a toeriffic idea");
+		textBuddy.runCommand("add this line shall not have the word toe");
+		textBuddy.runCommand("add just kidding");
+		
+		String actual = textBuddy.runCommand("search toe");
+		String expected = "1. i have five toes\r\n2. constantly toeing the line\r\n"
+				+ "3. that's a toeriffic idea\r\n4. this line shall not have the word toe\r\n";
+		
+		assertEquals(expected, actual);
+	}
 }
