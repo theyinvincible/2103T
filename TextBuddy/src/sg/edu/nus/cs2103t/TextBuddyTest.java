@@ -40,6 +40,16 @@ public class TextBuddyTest {
 	}
 
 	@Test
+	public void sortEmptyFile(){
+		textBuddy.runCommand("clear");
+		
+		String actual = textBuddy.runCommand("sort");
+		String expected = "Nothing to be sorted";
+		
+		assertEquals(expected, actual);
+	}
+	
+	@Test
 	public void testSearchOneWord(){
 		textBuddy.runCommand("clear");
 		
