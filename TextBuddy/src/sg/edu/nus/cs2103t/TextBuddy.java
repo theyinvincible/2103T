@@ -235,6 +235,10 @@ public class TextBuddy {
 	 * @return message to indicate text file has been sorted
 	 */
 	private String sortText() {
+		if (textStorage.isEmpty()){
+			return "Nothing to be sorted";
+		}
+		
 		Collections.sort(textStorage);
 		return String.format(MESSAGE_SORT, textFileName);
 	}
