@@ -6,7 +6,6 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.Scanner;
 
@@ -35,26 +34,33 @@ public class TextBuddy {
 	
 	private static Integer FILE_NAME_POSITION = 0;
 	private static Integer START_INDEX = 0;
+	private static Integer START_LINE_COUNT = 1;
+	private static Integer ERROR_INDICATOR = -1;
 	
 	
 	////////////////////////////////////////////////
 	public static void main(String[] args){
-		textFileName = args[FILE_NAME_POSITION];
+		String fileName = args[FILE_NAME_POSITION];
+		TextBuddy textBuddy = new TextBuddy(fileName);
 				
 		showUser(String.format(MESSAGE_BEGIN, textFileName));
 		while (true) {
 			System.out.print("command: ");
 			String userInput = scanner.nextLine();
-			String feedback = runCommand(userInput);
+			String feedback = textBuddy.runCommand(userInput);
 			showUser(feedback);
 		}
+	}
+	
+	public TextBuddy(String fileName){
+		textFileName = fileName;
 	}
 	
 	private static void showUser(String text){
 		System.out.println(text);
 	}
 	
-	public static String runCommand(String userInput){
+	public String runCommand(String userInput){
 		if (userInput.trim().isEmpty()){
 			return String.format(MESSAGE_INVALID, userInput);
 		}
@@ -89,7 +95,7 @@ public class TextBuddy {
 	 * 		the full string the user entered as the command
 	 * @return the command type
 	 */
-	private static COMMAND_TYPE getCommand(String userInput){
+	private COMMAND_TYPE getCommand(String userInput){
 		String command = getFirstWord(userInput);
 		
 		if (command == null){
@@ -120,7 +126,7 @@ public class TextBuddy {
 	 * 		the full string the user entered as the command
 	 * @return message to indicate that text has been added successfully
 	 */
-	private static String addText(String userInput){
+	private String addText(String userInput){
 		String textToAdd = removeFirstWord(userInput);
 		textStorage.add(textToAdd);
 		return String.format(MESSAGE_ADD, textFileName, textToAdd);
@@ -134,12 +140,12 @@ public class TextBuddy {
 	 * 		the full string the user entered as the command
 	 * @return message to indicate success or failure of the delete operation
 	 */
-	private static String deleteText(String userInput){
+	private String deleteText(String userInput){
 		
 		int deletePosition = positionToRemove(userInput);
 		String deletedText;
-		
-		if (deletePosition < START_INDEX || deletePosition > textStorage.size()){
+				
+		if (deletePosition < START_INDEX || deletePosition >= textStorage.size()){
 			return String.format(MESSAGE_INVALID, userInput);
 		} else if (textStorage.isEmpty()){
 			return String.format(MESSAGE_EMPTY, textFileName);
@@ -154,12 +160,12 @@ public class TextBuddy {
 	 * @param userInput
 	 * @return the line number indicated by the user to remove from the text file
 	 */
-	private static Integer positionToRemove(String userInput){
+	private Integer positionToRemove(String userInput){
 		String number = removeFirstWord(userInput);
 		try{
 			return Integer.parseInt(number) - 1;
 		} catch (NumberFormatException e){
-			return -1;
+			return ERROR_INDICATOR;
 		}
 	}
 	
@@ -167,7 +173,7 @@ public class TextBuddy {
 	 * This operation deletes all text in the text file
 	 * @return message indicating successful clearance
 	 */
-	private static String clearText(){
+	private String clearText(){
 		textStorage.clear();
 		return String.format(MESSAGE_CLEAR, textFileName);
 	}
@@ -176,9 +182,9 @@ public class TextBuddy {
 	/**
 	 * @return text contained within the text file
 	 */
-	private static String displayText(){
+	private String displayText(){
 		String allText = "", textLine;
-		int lineCount = 1;
+		int lineCount = START_LINE_COUNT;
 		Iterator<String> textIter = textStorage.iterator();
 		
 		if (textStorage.isEmpty()){
@@ -194,16 +200,16 @@ public class TextBuddy {
 		return allText;
 	}
 	
-	private static String formatTextLine(int lineCount, String text) {
+	private String formatTextLine(int lineCount, String text) {
 		return Integer.toString(lineCount) + ". " + text + "\r\n";
 	}
 	
-	private static String sortText() {
+	private String sortText() {
 		Collections.sort(textStorage);
 		return String.format(MESSAGE_SORT, textFileName);
 	}
 	
-	private static void writeIntoFile(String text){
+	private void writeIntoFile(String text){
 		try{
 			File file = new File(findPathName());
 			if (!file.exists()){
@@ -218,15 +224,15 @@ public class TextBuddy {
 		}
 	}
 	
-	private static String findPathName() {
+	private String findPathName() {
 		return System.getProperty("user.dir")+"/"+textFileName;
 	}
 	
-	private static String removeFirstWord(String line){
+	private String removeFirstWord(String line){
 		return line.replace(getFirstWord(line), "").trim();
 	}
 	
-	private static String getFirstWord(String line){
+	private String getFirstWord(String line){
 		return line.trim().split("\\s+")[START_INDEX];
 	}
 	
